@@ -29,9 +29,18 @@ const Request = () => {
     status: statusFilter,
   });
 
-  const requests = data?.data || [];
+  // const requests = data?.data || [];
   const counts = data?.counts || {};
   const pagination = data?.pagination || {};
+  const apiRequests = data?.data || [];
+
+  const requests = useMemo(() => {
+    if (!search.trim()) return apiRequests;
+
+    return apiRequests.filter((req) =>
+      req.User?.fullName?.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [apiRequests, search]);
 
   async function UpdateStatuss(id, status) {
     try {
