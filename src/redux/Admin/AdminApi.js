@@ -123,7 +123,7 @@ export const apiSlice = createApi({
 
     UpdateVideoInfo: builder.mutation({
       query: ({ data, id }) => ({
-        url: `/videoInfo/video/${id}`,
+        url: `/videoInfo/videos/${id}`,
         method: "PUT",
         body: data,
       }),

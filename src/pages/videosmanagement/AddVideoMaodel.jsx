@@ -42,6 +42,10 @@ const AddVideoModal = ({ isOpen, onClose }) => {
       formData.append("video", data.video[0]);
     }
 
+    if (data.videoThumbnail?.length) {
+      formData.append("videoThumbnail", data.videoThumbnail[0]);
+    }
+
     try {
       const res = await AddVideo(formData);
       if (res.error) {
@@ -106,8 +110,19 @@ const AddVideoModal = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Upload Video */}
+          {/* Thumbnail Upload */}
           <div className="mb-6">
+            <label className="text-sm font-medium">Video Thumbnail</label>
+            <input
+              {...register("videoThumbnail", { required: true })}
+              type="file"
+              accept="image/*"
+              className="mt-2 w-full text-sm"
+            />
+          </div>
+
+          {/* Upload Video */}
+          {/* <div className="mb-6">
             <label className="text-sm font-medium">Upload Video</label>
             <input
               {...register("video")}
@@ -116,7 +131,7 @@ const AddVideoModal = ({ isOpen, onClose }) => {
               className="mt-2 w-full text-sm"
               disabled={videoURL}
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"
