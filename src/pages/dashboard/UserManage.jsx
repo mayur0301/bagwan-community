@@ -3,7 +3,7 @@ import { Users, Clock, CheckCircle, Info, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const UserManage = ({ counts }) => {
-  console.log(counts);
+  //console.log(counts);
 
   //COmmented by me
   // const stats = [
