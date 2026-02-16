@@ -11,7 +11,7 @@ import {
   ChevronRight,
   HandHeart,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../../public/Logo.png";
 import {
   useLoginAdminMutation,
@@ -36,7 +36,22 @@ const SideBar = ({ collapsed, setCollapsed }) => {
   const [logoutadmin, { isLoading }] = useLogoutAdminMutation();
   const [openAdminMenu, setOpenAdminMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
+  // async function Logout() {
+  //   try {
+  //     const res = await logoutadmin();
+  //     if (res.error) {
+  //       toast.error("Error In Logout");
+  //     } else {
+  //       toast.success("Logout Done");
+  //       localStorage.clear();
+  //       window.location.href = "/login";
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error In Logout");
+  //   }
+  // }
   async function Logout() {
     try {
       const res = await logoutadmin();
@@ -45,7 +60,7 @@ const SideBar = ({ collapsed, setCollapsed }) => {
       } else {
         toast.success("Logout Done");
         localStorage.clear();
-        window.location.href = "/login";
+        navigate("/login");
       }
     } catch (error) {
       toast.error("Error In Logout");
@@ -76,7 +91,6 @@ const SideBar = ({ collapsed, setCollapsed }) => {
     overflow-hidden
   `}
       >
-
         {/* LOGO */}
         <div className="relative px-4 pt-6 pb-8 flex justify-center">
           <div className="bg-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-md">
@@ -94,7 +108,6 @@ const SideBar = ({ collapsed, setCollapsed }) => {
             )}
           </div>
 
-          
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="absolute pr-5 -right-4 top-1/2 -translate-y-1/2
@@ -102,7 +115,6 @@ const SideBar = ({ collapsed, setCollapsed }) => {
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
-
 
           {/* MOBILE CLOSE */}
           <button
@@ -126,10 +138,11 @@ const SideBar = ({ collapsed, setCollapsed }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl transition-all
               text-white
-              ${isActive
-                    ? "bg-gradient-to-r from-[#212121] to-[#5ACD0B] shadow-lg border-l-4"
-                    : "hover:bg-white/10"
-                  }`
+              ${
+                isActive
+                  ? "bg-gradient-to-r from-[#212121] to-[#5ACD0B] shadow-lg border-l-4"
+                  : "hover:bg-white/10"
+              }`
                 }
               >
                 <Icon size={22} />
