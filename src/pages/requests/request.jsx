@@ -9,7 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import {
-  useGetAllSupportsQuery,
+  useGetAllSheemaSupportsQuery,
   useUpdateSupportStatusMutation,
 } from "../../redux/Admin/AdminApi";
 import defaultAvatar from "../../assets/default-avatar.jpg";
@@ -24,7 +24,7 @@ const Request = () => {
 
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useGetAllSupportsQuery({
+  const { data, isLoading } = useGetAllSheemaSupportsQuery({
     page,
     status: statusFilter,
   });

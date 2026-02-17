@@ -26,8 +26,7 @@ const SupportCategories = () => {
   const [openCategory, setOpenCategory] = useState(null);
   const [editCategory, setEditCategory] = useState(null);
   const [deleteCatId, setDeleteCatId] = useState(null);
-  const [deleteSupId, setDeleteSupId] = useState(null);
-  const [delsupportId, setdelsupportId] = useState(null)
+  const [delsupportId, setdelsupportId] = useState(null);
 
   const { data: categoryData } = useGetAllCategoryQuery();
   const { data: supportData } = useGetAllSupportsQuery();
@@ -38,19 +37,27 @@ const SupportCategories = () => {
     useDeleteSupportMutation();
 
   const categories = categoryData?.data || [];
+
   const supports = supportData?.data || [];
+  const totalSupports = supportData?.totalSupports || 0;
+  const categoryCounts = supportData?.categoryCounts || [];
 
   const totalCategories = categories.length;
-  const totalSupports = supports.length;
 
+  // ✅ FINAL SAFE MAPPING
   const categoryWithSupports = useMemo(() => {
     return categories.map((cat) => ({
       ...cat,
+
       supports: supports.filter(
-        (s) => s.CategoryId?._id === cat._id
+        (s) => String(s.CategoryId?._id) === String(cat._id),
       ),
+
+      supportCount:
+        categoryCounts.find((c) => String(c.categoryId) === String(cat._id))
+          ?.count || 0,
     }));
-  }, [categories, supports]);
+  }, [categories, supports, categoryCounts]);
 
   const handleDeleteCategory = async (id) => {
     try {
@@ -66,13 +73,13 @@ const SupportCategories = () => {
 
   const handleDeleteSupport = async (id) => {
     try {
-      setDeleteSupId(id);
+      setdelsupportId(id); // ✅ FIXED
       await deleteSupport(id).unwrap();
       toast.success("Support deleted");
     } catch {
       toast.error("Failed to delete support");
     } finally {
-      setDeleteSupId(null);
+      setdelsupportId(null);
     }
   };
 
@@ -138,10 +145,10 @@ const SupportCategories = () => {
           return (
             <div
               key={cat._id}
-              className={`rounded-2xl border ${isOpen ? "bg-[#F1FFE7] border-green-300" : "bg-white"
-                }`}
+              className={`rounded-2xl border ${
+                isOpen ? "bg-[#F1FFE7] border-green-300" : "bg-white"
+              }`}
             >
-              {/* Category Header */}
               <div className="p-5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <img
@@ -151,16 +158,13 @@ const SupportCategories = () => {
                   />
 
                   <div>
-                    <p className="font-semibold text-lg">
-                      {cat.categoryName}
-                    </p>
+                    <p className="font-semibold text-lg">{cat.categoryName}</p>
                     <span className="inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                      {cat.supports.length} Supports
+                      {cat.supportCount} Supports
                     </span>
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => {
@@ -184,9 +188,7 @@ const SupportCategories = () => {
                   </button>
 
                   <button
-                    onClick={() =>
-                      setOpenCategory(isOpen ? null : cat._id)
-                    }
+                    onClick={() => setOpenCategory(isOpen ? null : cat._id)}
                   >
                     {isOpen ? (
                       <ChevronUp size={20} />
@@ -197,7 +199,6 @@ const SupportCategories = () => {
                 </div>
               </div>
 
-              {/* Supports */}
               {isOpen && (
                 <div className="px-5 pb-5 flex flex-wrap gap-3">
                   {cat.supports.map((sup) => (
@@ -206,18 +207,21 @@ const SupportCategories = () => {
                       className="flex items-center gap-2 px-4 py-2 border border-green-500 rounded-full text-sm font-semibold text-green-600 bg-white"
                     >
                       {sup.SupportName}
-                      {deletingSupport && delsupportId === sup._id ? <Loader2 size={14} className="animate-spin" /> : <Trash2
-                        size={14}
-                        onClick={() => { handleDeleteSupport(sup._id), setdelsupportId(sup._id) }}
-                        className="text-red-500 cursor-pointer"
-                      />}
+
+                      {deletingSupport && delsupportId === sup._id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Trash2
+                          size={14}
+                          onClick={() => handleDeleteSupport(sup._id)}
+                          className="text-red-500 cursor-pointer"
+                        />
+                      )}
                     </span>
                   ))}
 
                   {cat.supports.length === 0 && (
-                    <p className="text-gray-500 text-sm">
-                      No supports found
-                    </p>
+                    <p className="text-gray-500 text-sm">No supports found</p>
                   )}
                 </div>
               )}
@@ -236,6 +240,7 @@ const SupportCategories = () => {
           }}
         />
       )}
+
       <AddSupportModel
         isOpen={openAddSupport}
         onClose={() => setOpenAddSupport(false)}

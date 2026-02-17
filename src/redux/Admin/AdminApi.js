@@ -5,13 +5,24 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_BACKEND_URL}`,
     credentials: "include",
-    // prepareHeaders: (headers) => {
-    //   headers.set("Content-Type", "application/json");
-    //   return headers;
-    // },
   }),
-  tagTypes: ["projects", "users", "job", "leave", "User", "Supports"],
+
+  // ✅ FIXED TAG TYPES (support + category + video etc properly aligned)
+  tagTypes: [
+    "projects",
+    "users",
+    "job",
+    "leave",
+    "User",
+    "support",
+    "category",
+    "video",
+    "updates",
+    "donations",
+  ],
+
   endpoints: (builder) => ({
+    // ================= ADMIN AUTH =================
     registerAdmin: builder.mutation({
       query: (data) => ({
         url: "/admin/create-admin",
@@ -43,15 +54,42 @@ export const apiSlice = createApi({
       }),
     }),
 
+    // ================= CATEGORY =================
     AddCategory: builder.mutation({
       query: (data) => ({
         url: "/Category/add",
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["category"]
+      invalidatesTags: ["category"],
     }),
 
+    GetAllCategory: builder.query({
+      query: () => ({
+        url: "/Category/getall",
+        method: "GET",
+      }),
+      providesTags: ["category"],
+    }),
+
+    UpdateCategory: builder.mutation({
+      query: ({ data, id }) => ({
+        url: `/Category/update/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["category"],
+    }),
+
+    Deletcategory: builder.mutation({
+      query: (id) => ({
+        url: `/Category/delete/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["category"],
+    }),
+
+    // ================= USERS =================
     GetAllUsers: builder.query({
       query: ({ page = 1, categoryId }) => ({
         url: "/user/auth/getAllUsers",
@@ -64,27 +102,10 @@ export const apiSlice = createApi({
       providesTags: ["users"],
     }),
 
-
-    GetDashboardSummary: builder.query({
-      query: () => ({
-        url: "/AdminDashboard/dashboard/summary",
-        method: "GET",
-      }),
-    }),
-
     GetUserById: builder.query({
       query: (id) => `/user/auth/getUserById/${id}`,
       providesTags: (result, error, id) => [{ type: "User", id }],
     }),
-
-    GetAllCategory: builder.query({
-      query: () => ({
-        url: "/Category/getall",
-        method: "GET",
-      }),
-      providesTags: ["category"],
-    }),
-
 
     updateStatus: builder.mutation({
       query: ({ id, currentStatus }) => ({
@@ -95,7 +116,15 @@ export const apiSlice = createApi({
       invalidatesTags: (result, error, { id }) => [{ type: "User", id }],
     }),
 
+    // ================= DASHBOARD =================
+    GetDashboardSummary: builder.query({
+      query: () => ({
+        url: "/AdminDashboard/dashboard/summary",
+        method: "GET",
+      }),
+    }),
 
+    // ================= VIDEO =================
     GetAllVideoInfo: builder.query({
       query: () => ({
         url: "/videoInfo/getall",
@@ -137,6 +166,7 @@ export const apiSlice = createApi({
       }),
     }),
 
+    // ================= DAILY UPDATES =================
     GetAllUpdates: builder.query({
       query: () => ({
         url: "/DailyUpdate/getall",
@@ -178,6 +208,8 @@ export const apiSlice = createApi({
       invalidatesTags: ["updates"],
     }),
 
+    // ================= SUPPORT (🔥 FIXED PART) =================
+
     AddSupport: builder.mutation({
       query: (data) => ({
         url: "/Support/add",
@@ -187,7 +219,25 @@ export const apiSlice = createApi({
       invalidatesTags: ["support"],
     }),
 
+    // ✅ MAIN FIX — USING CORRECT BACKEND AGGREGATION API
     GetAllSupports: builder.query({
+      query: () => ({
+        url: "/Support/getall",
+        method: "GET",
+      }),
+      providesTags: ["support"],
+    }),
+
+    DeleteSupport: builder.mutation({
+      query: (id) => ({
+        url: `/Support/delete/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["support"],
+    }),
+
+    // ================= Get All Scheema Support Requests of support request panel ===================  //
+    GetAllSheemaSupports: builder.query({
       query: ({ page = 1, status }) => ({
         url: "/ScheemSupport/getAllSheemaSupports",
         method: "GET",
@@ -199,7 +249,7 @@ export const apiSlice = createApi({
       providesTags: ["Supports"],
     }),
 
-
+    // ================= SCHEME SUPPORT STATUS =================
     UpdateSupportStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/ScheemSupport/updateRequestUser/${id}`,
@@ -209,31 +259,7 @@ export const apiSlice = createApi({
       invalidatesTags: ["Supports"],
     }),
 
-    UpdateCategory: builder.mutation({
-      query: ({ data, id }) => ({
-        url: `/Category/update/${id}`,
-        method: "PUT",
-        body: data,
-      }),
-      invalidatesTags: ["category"],
-    }),
-
-    Deletcategory: builder.mutation({
-      query: (id) => ({
-        url: `/Category/delete/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["category"],
-    }),
-
-    DeleteSupport: builder.mutation({
-      query: (id) => ({
-        url: `Support/delete/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["support"],
-    }),
-
+    // ================= DONATIONS =================
     getAllDonations: builder.query({
       query: ({ page = 1, category }) => ({
         url: "/Donation/donations",
@@ -254,10 +280,10 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["donations"],
     }),
-
   }),
 });
 
+// ================= EXPORT HOOKS =================
 export const {
   useRegisterAdminMutation,
   useLoginAdminMutation,
@@ -279,6 +305,7 @@ export const {
   useDeleteUpdatesMutation,
   useGetAllSupportsQuery,
   useAddSupportMutation,
+  useGetAllSheemaSupportsQuery,
   useUpdateSupportStatusMutation,
   useUpdateCategoryMutation,
   useDeletcategoryMutation,
